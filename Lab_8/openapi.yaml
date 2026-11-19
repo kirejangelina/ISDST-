@@ -1,0 +1,112 @@
+openapi: 3.0.3
+info:
+  title: News Aggregator API
+  description: API для работы с новостной лентой и избранным
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000/api/v1
+
+paths:
+  /news:
+    get:
+      summary: Получить ленту новостей
+      parameters:
+        - name: limit
+          in: query
+          description: Количество новостей на странице
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          description: Смещение для пагинации
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Успешный ответ со списком новостей
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NewsItem'
+
+  /news/{id}:
+    get:
+      summary: Получить новость по ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Данные новости
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewsItem'
+        '404':
+          description: Новость не найдена
+
+  /favorites:
+    get:
+      summary: Получить список избранных новостей
+      responses:
+        '200':
+          description: Список избранного
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NewsItem'
+    post:
+      summary: Добавить новость в избранное
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                news_id:
+                  type: integer
+      responses:
+        '201':
+          description: Новость добавлена в избранное
+
+  /favorites/{id}:
+    delete:
+      summary: Удалить новость из избранного
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Удалено успешно
+
+components:
+  schemas:
+    NewsItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        summary:
+          type: string
+        source:
+          type: string
+        published_at:
+          type: string
+          format: date-time
